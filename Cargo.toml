@@ -1,0 +1,18 @@
+[package]
+name = "freq"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+indexmap = "1.8.1"
+itertools = "0.10.3"
+rusqlite = { version="0.27.0", features=["bundled"] }
+rustc-hash = "1.1.0"
+tempfile = "3.3.0"
+unicode-segmentation = "1.9.0"
+
+[profile.release]
+lto = true
+codegen-units = 1
