@@ -7,6 +7,7 @@ use std::fs::File;
 use std::hash::BuildHasherDefault;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
+use std::{env, process};
 use tempfile::NamedTempFile;
 use unicode_segmentation::UnicodeSegmentation;
 
@@ -59,7 +60,7 @@ fn find_trigram_frequencies<P: AsRef<Path>>(path: P) -> io::Result<FnvIndexMap<S
     Ok(map)
 }
 
-fn find_trigram_frequencies_sqlite<P: AsRef<Path>>(
+fn _find_trigram_frequencies_sqlite<P: AsRef<Path>>(
     path: P,
 ) -> Result<FnvIndexMap<String, usize>, Box<dyn Error>> {
     let reader = BufReader::new(File::open(path)?);
@@ -123,14 +124,29 @@ fn find_trigram_frequencies_sqlite<P: AsRef<Path>>(
     Ok(map)
 }
 
+fn usage(msg: Option<&str>) -> ! {
+    if let Some(msg) = msg {
+        eprintln!("{}", msg);
+    }
+    eprintln!("usage: {} [FILE] [1|2|3]", env!("CARGO_BIN_NAME"));
+    process::exit(1);
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
-    let file = "/Users/a/Downloads/data/hi/hi.txt";
-    //find_unigram_frequencies(file).unwrap();
-    //find_bigram_frequencies(file).unwrap();
-    let mut map = find_trigram_frequencies_sqlite(file)?;
+    let args: Vec<_> = env::args().collect();
+    if args.len() != 3 {
+        usage(None);
+    }
+    let mut map = match args[2].as_str() {
+        "1" => find_unigram_frequencies(&args[1]),
+        "2" => find_bigram_frequencies(&args[1]),
+        "3" => find_trigram_frequencies(&args[1]),
+        _ => usage(Some("invalid value of n for n-gram")),
+    }?;
+    //let mut map = find_trigram_frequencies_sqlite(file)?;
     map.sort_unstable_by(|_, v1, _, v2| v2.cmp(v1));
     for (k, v) in map.iter().take(100) {
-        println!("{k} {v}");
+        println!("{k}|{v}");
     }
     Ok(())
 }
