@@ -1,3 +1,11 @@
+a short program to find word uni/bi/tri-grams for the hindi dataset at <https://indicnlp.ai4bharat.org/corpora/>
+
+# compile
+
+```console
+$ cargo build --release
+```
+
 # stats
 
 - server specs:
